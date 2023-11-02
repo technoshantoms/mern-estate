@@ -13,7 +13,7 @@ const  App= () => {
 
   const navigate = useNavigate();
   const restoreOriginalUri = (_oktaAuth,  originalUri) => {
-    navigate(toRelativeUrl(originalUri || '/', window.location.origin));
+    navigate(toRelativeUrl(originalUri || '/sign-in', window.location.origin));
   };
   return (
     <div>
