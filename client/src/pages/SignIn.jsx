@@ -1,14 +1,18 @@
-import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
 import {
+  signInFailure,
   signInStart,
   signInSuccess,
-  signInFailure,
 } from '../redux/user/userSlice';
+import { useDispatch, useSelector } from 'react-redux';
+
+import { Button } from 'semantic-ui-react';
 import OAuth from '../components/OAuth';
+import { useOktaAuth } from '@okta/okta-react';
+import { useState } from 'react';
 
 export default function SignIn() {
+  const { oktaAuth } = useOktaAuth();
   const [formData, setFormData] = useState({});
   const { loading, error } = useSelector((state) => state.user);
   const navigate = useNavigate();
@@ -19,6 +23,10 @@ export default function SignIn() {
       [e.target.id]: e.target.value,
     });
   };
+  const login = async () => {
+    await oktaAuth.signInWithRedirect();
+  };
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -68,6 +76,7 @@ export default function SignIn() {
           {loading ? 'Loading...' : 'Sign In'}
         </button>
         <OAuth/>
+        <Button id="login-button" primary onClick={login}>Okta Login</Button>
       </form>
       <div className='flex gap-2 mt-5'>
         <p>Dont have an account?</p>
