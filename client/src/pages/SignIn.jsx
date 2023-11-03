@@ -86,7 +86,7 @@ export default function SignIn() {
             }
           } */}
           </ul>
-          {/* <Table>
+          <Table>
           <thead>
             <tr>
               <th>Claim</th>
@@ -106,7 +106,7 @@ export default function SignIn() {
               );
             })}
           </tbody>
-        </Table> */}
+        </Table>
  
         </div>
       )}
