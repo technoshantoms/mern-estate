@@ -5,6 +5,8 @@ import { Navigation } from 'swiper/modules';
 import SwiperCore from 'swiper';
 import 'swiper/css/bundle';
 import ListingItem from '../components/ListingItem';
+import '../css/styles.css';
+
 
 export default function Home() {
   const [offerListings, setOfferListings] = useState([]);
@@ -46,89 +48,56 @@ export default function Home() {
     fetchOfferListings();
   }, []);
   return (
-    <div>
-      {/* top */}
-      <div className='flex flex-col gap-6 p-28 px-3 max-w-6xl mx-auto'>
-        <h1 className='text-slate-700 font-bold text-3xl lg:text-6xl'>
-          Find your next <span className='text-slate-500'>perfect</span>
-          <br />
-          place with ease
-        </h1>
-        <div className='text-gray-400 text-xs sm:text-sm'>
-          Sahand Estate is the best place to find your next perfect place to
-          live.
-          <br />
-          We have a wide range of properties for you to choose from.
+    <div id="main">
+        <div id="container">
+            <div className="contain-left">
+                <h1 className='cursor-pointer'>UniVerse</h1>
+                <h2 className='cursor-pointer'>Solving all your college related headaches at one place.</h2>
+            </div>
+            <div className="contain-right">
+                <div className="part1">
+                    <div className="img-holder" onClick="redirectToEvent()">
+                        <img src="./img/events.png" alt=""/>
+                        <div className="overlay">
+                            <h3>Events</h3>
+                        </div>
+                        <div className="text">
+                            <p>Get a list of all the upcoming and ongoing <br/>events.</p>
+                        </div>
+                    </div>
+                    <div className="img-holder" onClick="redirectToMess()">
+                        <img src="./img/Mess.png" alt=""/>
+                        <div className="overlay">
+                            <h3>Mess</h3>
+                        </div>
+                        <div className="text">
+                            <p>Do not like the food, raise a voice for improving <br/>food quality.</p>
+                        </div>
+                    </div>
+                </div>
+                <div className="part2">
+                    <div className="img-holder" onClick="redirectToLaundry()">
+                        <img src="./img/Laundry.png" alt=""/>
+                        <div className="overlay">
+                            <h3>Laundry</h3>
+                        </div>
+                        <div className="text">
+                            <p>Still using slips for laundry meh, Just digitalize <br/>the slip.</p>
+                        </div>
+                    </div>
+                    <div className="img-holder" onClick="redirectToBooking()">
+                        <img src="./img/eventbook.png" alt=""/>
+                        <div className="overlay">
+                            <h3>Book <br/>a seat</h3>
+                        </div>
+                        <div className="text">
+                            <p>Not getting seats in events, then prebook your <br/>seats.</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
         </div>
-        <Link
-          to={'/search'}
-          className='text-xs sm:text-sm text-blue-800 font-bold hover:underline'
-        >
-          Let's get started...
-        </Link>
-      </div>
-
-      {/* swiper */}
-      <Swiper navigation>
-        {offerListings &&
-          offerListings.length > 0 &&
-          offerListings.map((listing) => (
-            <SwiperSlide>
-              <div
-                style={{
-                  background: `url(${listing.imageUrls[0]}) center no-repeat`,
-                  backgroundSize: 'cover',
-                }}
-                className='h-[500px]'
-                key={listing._id}
-              ></div>
-            </SwiperSlide>
-          ))}
-      </Swiper>
-
-      {/* listing results for offer, sale and rent */}
-
-      <div className='max-w-6xl mx-auto p-3 flex flex-col gap-8 my-10'>
-        {offerListings && offerListings.length > 0 && (
-          <div className=''>
-            <div className='my-3'>
-              <h2 className='text-2xl font-semibold text-slate-600'>Recent offers</h2>
-              <Link className='text-sm text-blue-800 hover:underline' to={'/search?offer=true'}>Show more offers</Link>
-            </div>
-            <div className='flex flex-wrap gap-4'>
-              {offerListings.map((listing) => (
-                <ListingItem listing={listing} key={listing._id} />
-              ))}
-            </div>
-          </div>
-        )}
-        {rentListings && rentListings.length > 0 && (
-          <div className=''>
-            <div className='my-3'>
-              <h2 className='text-2xl font-semibold text-slate-600'>Recent places for rent</h2>
-              <Link className='text-sm text-blue-800 hover:underline' to={'/search?type=rent'}>Show more places for rent</Link>
-            </div>
-            <div className='flex flex-wrap gap-4'>
-              {rentListings.map((listing) => (
-                <ListingItem listing={listing} key={listing._id} />
-              ))}
-            </div>
-          </div>
-        )}
-        {saleListings && saleListings.length > 0 && (
-          <div className=''>
-            <div className='my-3'>
-              <h2 className='text-2xl font-semibold text-slate-600'>Recent places for sale</h2>
-              <Link className='text-sm text-blue-800 hover:underline' to={'/search?type=sale'}>Show more places for sale</Link>
-            </div>
-            <div className='flex flex-wrap gap-4'>
-              {saleListings.map((listing) => (
-                <ListingItem listing={listing} key={listing._id} />
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
     </div>
   );
 }

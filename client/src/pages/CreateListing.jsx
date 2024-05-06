@@ -8,6 +8,7 @@ import {
 import { app } from '../firebase';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { Document, Page, Text, View, StyleSheet, PDFDownloadLink } from '@react-pdf/renderer';
 
 export default function CreateListing() {
   const { currentUser } = useSelector((state) => state.user);
@@ -16,22 +17,27 @@ export default function CreateListing() {
   const [formData, setFormData] = useState({
     imageUrls: [],
     name: '',
-    description: '',
-    address: '',
-    type: 'rent',
-    bedrooms: 1,
-    bathrooms: 1,
-    regularPrice: 50,
-    discountPrice: 0,
-    offer: false,
-    parking: false,
-    furnished: false,
+    enrollment: '',
+    phone: '',
+    tshirts: 0,
+    shirts: 0,
+    pants: 0,
+    bedsheets: 0,
+    lowers: 0,
+    shorts: 0,
+    towel: 0,
+    pillowcover: 0,
+    kurta: 0,
+    pajama: 0,
+    dupatta: 0,
+    userRef: currentUser._id,
   });
   const [imageUploadError, setImageUploadError] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
   console.log(formData);
+
   const handleImageSubmit = (e) => {
     if (files.length > 0 && files.length + formData.imageUrls.length < 7) {
       setUploading(true);
@@ -59,7 +65,6 @@ export default function CreateListing() {
       setUploading(false);
     }
   };
-
   const storeImage = async (file) => {
     return new Promise((resolve, reject) => {
       const storage = getStorage(app);
@@ -93,68 +98,81 @@ export default function CreateListing() {
   };
 
   const handleChange = (e) => {
-    if (e.target.id === 'sale' || e.target.id === 'rent') {
-      setFormData({
-        ...formData,
-        type: e.target.id,
-      });
-    }
-
-    if (
-      e.target.id === 'parking' ||
-      e.target.id === 'furnished' ||
-      e.target.id === 'offer'
-    ) {
-      setFormData({
-        ...formData,
-        [e.target.id]: e.target.checked,
-      });
-    }
-
-    if (
-      e.target.type === 'number' ||
-      e.target.type === 'text' ||
-      e.target.type === 'textarea'
-    ) {
-      setFormData({
-        ...formData,
-        [e.target.id]: e.target.value,
-      });
+    const { id, value, type, checked } = e.target;
+    
+    if (type === 'checkbox') {
+      setFormData({ ...formData, [id]: checked });
+    } else {
+      // Change 'id' to 'enrollmentId' here
+      setFormData({ ...formData, [id]: value });
     }
   };
+  
+
+  const generateSlip = () => (
+    <Document>
+      <Page style={styles.page}>
+        <View style={styles.section}>
+          <Text style={styles.title}>Laundry Service Slip</Text>
+          <Text style={styles.text}>Name: {formData.name}</Text>
+          <Text style={styles.text}>Enrollment ID: {formData.enrollment}</Text>
+          <Text style={styles.text}>Phone: {formData.phone}</Text>
+          <Text style={styles.title}>Clothes</Text>
+          {Object.entries(formData).map(([key, value]) => {
+            if (key !== 'imageUrls' && key !== 'name' && key !== 'enrollmentId' && key !== 'phone' && key !== '') {
+              return (
+                <Text style={styles.text} key={key}>
+                  {key}: {value}
+                </Text>
+              );
+            }
+            return null;
+          })}
+        </View>
+      </Page>
+    </Document>
+  );
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       if (formData.imageUrls.length < 1)
         return setError('You must upload at least one image');
-      if (+formData.regularPrice < +formData.discountPrice)
-        return setError('Discount price must be lower than regular price');
+      
+      // Validate other form data if needed
+  
       setLoading(true);
       setError(false);
-      const res = await fetch('/api/listing/create', {
+      const res = await fetch('/api/laundry/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          ...formData,
-          userRef: currentUser._id,
-        }),
+        body: JSON.stringify(formData),
       });
+  
       const data = await res.json();
       setLoading(false);
+  
       if (data.success === false) {
         setError(data.message);
+      } else {
+        generateSlip();
       }
-      navigate(`/listing/${data._id}`);
     } catch (error) {
       setError(error.message);
       setLoading(false);
     }
   };
+  
+
   return (
     <main className='p-3 max-w-4xl mx-auto'>
+      <div className='flex flex-col text-4xl font-semibold items-center my-7'>
+        <h1>Is the line longer than your to-do list?</h1>
+        <h1>Ohh! Lost that damn slip again!</h1>
+        <h1>No worries! We've got your back.</h1>
+      </div>
       <h1 className='text-3xl font-semibold text-center my-7'>
         Create a Listing
       </h1>
@@ -171,144 +189,170 @@ export default function CreateListing() {
             onChange={handleChange}
             value={formData.name}
           />
-          <textarea
-            type='text'
-            placeholder='Description'
-            className='border p-3 rounded-lg'
-            id='description'
-            required
-            onChange={handleChange}
-            value={formData.description}
-          />
           <input
             type='text'
-            placeholder='Address'
+            placeholder='Enrollment ID'
             className='border p-3 rounded-lg'
-            id='address'
+            id='enrollment'
             required
             onChange={handleChange}
-            value={formData.address}
+            value={formData.enrollment}
           />
-          <div className='flex gap-6 flex-wrap'>
-            <div className='flex gap-2'>
-              <input
-                type='checkbox'
-                id='sale'
-                className='w-5'
-                onChange={handleChange}
-                checked={formData.type === 'sale'}
-              />
-              <span>Sell</span>
-            </div>
-            <div className='flex gap-2'>
-              <input
-                type='checkbox'
-                id='rent'
-                className='w-5'
-                onChange={handleChange}
-                checked={formData.type === 'rent'}
-              />
-              <span>Rent</span>
-            </div>
-            <div className='flex gap-2'>
-              <input
-                type='checkbox'
-                id='parking'
-                className='w-5'
-                onChange={handleChange}
-                checked={formData.parking}
-              />
-              <span>Parking spot</span>
-            </div>
-            <div className='flex gap-2'>
-              <input
-                type='checkbox'
-                id='furnished'
-                className='w-5'
-                onChange={handleChange}
-                checked={formData.furnished}
-              />
-              <span>Furnished</span>
-            </div>
-            <div className='flex gap-2'>
-              <input
-                type='checkbox'
-                id='offer'
-                className='w-5'
-                onChange={handleChange}
-                checked={formData.offer}
-              />
-              <span>Offer</span>
-            </div>
-          </div>
+          <input
+            type='number'
+            placeholder='Phone number'
+            className='border p-3 rounded-lg'
+            id='phone'
+            required
+            onChange={handleChange}
+            value={formData.phone}
+          />
           <div className='flex flex-wrap gap-6'>
-            <div className='flex items-center gap-2'>
+          <div className='flex items-center gap-2'>
               <input
                 type='number'
-                id='bedrooms'
+                id='tshirts'
                 min='1'
                 max='10'
                 required
                 className='p-3 border border-gray-300 rounded-lg'
                 onChange={handleChange}
-                value={formData.bedrooms}
+                value={formData.tshirts}
               />
-              <p>Beds</p>
+              <p>t-shirts</p>
             </div>
             <div className='flex items-center gap-2'>
               <input
                 type='number'
-                id='bathrooms'
+                id='shirts'
                 min='1'
                 max='10'
                 required
                 className='p-3 border border-gray-300 rounded-lg'
                 onChange={handleChange}
-                value={formData.bathrooms}
+                value={formData.shirts}
               />
-              <p>Baths</p>
+              <p>shirts</p>
             </div>
             <div className='flex items-center gap-2'>
               <input
                 type='number'
-                id='regularPrice'
-                min='50'
-                max='10000000'
+                id='pants'
+                min='1'
+                max='10'
                 required
                 className='p-3 border border-gray-300 rounded-lg'
                 onChange={handleChange}
-                value={formData.regularPrice}
+                value={formData.pants}
               />
-              <div className='flex flex-col items-center'>
-                <p>Regular price</p>
-                {formData.type === 'rent' && (
-                  <span className='text-xs'>($ / month)</span>
-                )}
-              </div>
+              <p>pants</p>
             </div>
-            {formData.offer && (
-              <div className='flex items-center gap-2'>
-                <input
-                  type='number'
-                  id='discountPrice'
-                  min='0'
-                  max='10000000'
-                  required
-                  className='p-3 border border-gray-300 rounded-lg'
-                  onChange={handleChange}
-                  value={formData.discountPrice}
-                />
-                <div className='flex flex-col items-center'>
-                  <p>Discounted price</p>
-
-                  {formData.type === 'rent' && (
-                    <span className='text-xs'>($ / month)</span>
-                  )}
-                </div>
-              </div>
-            )}
+            <div className='flex items-center gap-2'>
+              <input
+                type='number'
+                id='bedsheets'
+                min='1'
+                max='10'
+                required
+                className='p-3 border border-gray-300 rounded-lg'
+                onChange={handleChange}
+                value={formData.bedsheets}
+              />
+              <p>bedsheets</p>
+            </div>
+            <div className='flex items-center gap-2'>
+              <input
+                type='number'
+                id='lowers'
+                min='1'
+                max='10'
+                required
+                className='p-3 border border-gray-300 rounded-lg'
+                onChange={handleChange}
+                value={formData.lowers}
+              />
+              <p>lowers</p>
+            </div>
+            <div className='flex items-center gap-2'>
+              <input
+                type='number'
+                id='shorts'
+                min='1'
+                max='10'
+                required
+                className='p-3 border border-gray-300 rounded-lg'
+                onChange={handleChange}
+                value={formData.shorts}
+              />
+              <p>shorts</p>
+            </div>
+            <div className='flex items-center gap-2'>
+              <input
+                type='number'
+                id='towel'
+                min='1'
+                max='10'
+                required
+                className='p-3 border border-gray-300 rounded-lg'
+                onChange={handleChange}
+                value={formData.towel}
+              />
+              <p>towel</p>
+            </div>
+            <div className='flex items-center gap-2'>
+              <input
+                type='number'
+                id='pillowcover'
+                min='1'
+                max='10'
+                required
+                className='p-3 border border-gray-300 rounded-lg'
+                onChange={handleChange}
+                value={formData.pillowcover}
+              />
+              <p>pillowcover</p>
+            </div>
+            <div className='flex items-center gap-2'>
+              <input
+                type='number'
+                id='kurta'
+                min='1'
+                max='10'
+                required
+                className='p-3 border border-gray-300 rounded-lg'
+                onChange={handleChange}
+                value={formData.kurta}
+              />
+              <p>kurta</p>
+            </div>
+            <div className='flex items-center gap-2'>
+              <input
+                type='number'
+                id='pajama'
+                min='1'
+                max='10'
+                required
+                className='p-3 border border-gray-300 rounded-lg'
+                onChange={handleChange}
+                value={formData.pajama}
+              />
+              <p>pajama</p>
+            </div>
+            <div className='flex items-center gap-2'>
+              <input
+                type='number'
+                id='dupatta'
+                min='1'
+                max='10'
+                required
+                className='p-3 border border-gray-300 rounded-lg'
+                onChange={handleChange}
+                value={formData.dupatta}
+              />
+              <p>dupatta</p>
+            </div>
           </div>
-        </div>
+          </div>
         <div className='flex flex-col flex-1 gap-4'>
           <p className='font-semibold'>
             Images:
@@ -366,6 +410,37 @@ export default function CreateListing() {
           {error && <p className='text-red-700 text-sm'>{error}</p>}
         </div>
       </form>
+      {/* PDFDownloadLink for downloading the slip */}
+      <PDFDownloadLink document={generateSlip()} fileName="Laundry_Slip.pdf">
+        {({ blob, url, loading, error }) =>
+          loading ? 'Generating slip...' : 'Download Slip'
+        }
+      </PDFDownloadLink>
     </main>
   );
-}
+}  
+
+const styles = StyleSheet.create({
+  page: {
+    flexDirection: 'column',
+    padding: 20,
+    backgroundColor: '#ffffff', // Set a background color
+  },
+  section: {
+    marginVertical: 20, // Increase vertical margin for sections
+    paddingHorizontal: 20, // Add horizontal padding
+    flexGrow: 1,
+  },
+  title: {
+    fontSize: 24, // Increase font size for titles
+    marginBottom: 15,
+    fontWeight: 'bold',
+    color: '#000000', // Darken the color for better contrast
+  },
+  text: {
+    fontSize: 14, // Increase font size for regular text
+    marginBottom: 10,
+    color: '#000000', // Slightly darken the color for better readability
+  },
+}); 
+

@@ -7,9 +7,14 @@ import Profile from './pages/Profile';
 import Header from './components/Header';
 import PrivateRoute from './components/PrivateRoute';
 import CreateListing from './pages/CreateListing';
+import ListEvents from './pages/ListEvents';
+import Contact from './components/Contact';
 import UpdateListing from './pages/UpdateListing';
 import Listing from './pages/Listing';
 import Search from './pages/Search';
+import Laundry from './pages/Laundry';
+import Mess from './pages/Mess';
+import Events from './pages/Events';
 
 export default function App() {
   return (
@@ -21,11 +26,16 @@ export default function App() {
         <Route path='/sign-up' element={<SignUp />} />
         <Route path='/about' element={<About />} />
         <Route path='/search' element={<Search />} />
+        <Route path='/contact' element={<Contact />} />
+         <Route path='/laundry' element={<CreateListing />} /> 
+        <Route path='/mess' element={<Mess />} />
+        { <Route path='/events' element={<Events />} /> }
         <Route path='/listing/:listingId' element={<Listing />} />
+
 
         <Route element={<PrivateRoute />}>
           <Route path='/profile' element={<Profile />} />
-          <Route path='/create-listing' element={<CreateListing />} />
+          <Route path='/list-events' element={<ListEvents />} />
           <Route
             path='/update-listing/:listingId'
             element={<UpdateListing />}
